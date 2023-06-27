@@ -1,0 +1,148 @@
+Catalina10.15でCocoaPods1.10.0を入れる方法(Homebrew)
+sell
+homebrew
+,
+CocoaPods
+,
+Catalina
+,
+macOSCatalina
+はじめに
+もともとgemでバージョン1.5.3を入れてたのですが、ライブラリアップデートに伴ってCocoaPods自体のバージョンも上げることになりsudo gem update cocoapodsを実行したら以下のエラーが発生
+
+Building native extensions. This could take a while...
+ERROR: Error installing cocoapods:
+ERROR: Failed to build gem native extension.
+
+調べるとRubyのバージョン関係のエラーのようで、RubyのバージョンかインストールするCocoaPodsのバージョンを下げることで対応できるみたいなのですが、使用しているライブラリの関係上CocoaPods 1.10.0を入れる必要がありました。
+これを機にgemからHomebrewでの管理に移行しようと思い、その際に行った作業を備忘録として投稿。
+
+環境
+macOS Catalina バージョン10.15.7
+ruby2.6.3p62
+CocoaPods 1.5.3
+
+手順
+既にインストールされてるCocoaPodsをアンインストールする
+ターミナル
+$ sudo gem uninstall cocoapods -n /usr/local/bin
+
+
+ターミナル
+$ sudo gem install cocoapods -n /usr/local/bin
+$ sudo gem install cocoapods -v /usr/local/bin/1.10.0
+$ sudo gem install -n /usr/local/bin cocoapods 1.10.1
+
+
+
+
+
+$ brew update
+
+HomebrewからCocoaPodsをインストールする
+ターミナル
+$ brew instal cocoapods
+エラーが発生した場合
+Error: The brew link step did not complete successfully
+The formula built, but is not symlinked into /usr/local
+Could not symlink bin/pod
+Target /usr/local/bin/pod
+already exists. You may want to remove it:
+rm '/usr/local/bin/pod'
+
+To force the link and overwrite all conflicting files:
+brew link --overwrite cocoapods
+
+To list all files that would be deleted:
+brew link --overwrite --dry-run cocoapods
+
+Possible conflicting files are:
+/usr/local/bin/pod
+/usr/local/bin/xcodeproj
+
+上記のようなエラーは、gem installした時の痕跡が残っててシンボリックリンクが貼られなかったことが原因みたいです。
+以下のコマンドを実行することで解決します。
+
+ターミナル
+$ brew link --overwrite cocoapods
+おわりに
+そもそもRubyのバージョンをどうにかすればgemのままインストールできたのでは...？
+他にも「こうすればできるよ！」や「ここが間違ってるよ」など知見がある方がいましたら、コメントください。
+
+参考記事
+https://qiita.com/spring_i/items/181bc3c05142d1f80d93
+https://github.com/CocoaPods/CocoaPods/issues/8955
+https://teratail.com/questions/245100
+
+
+
+申し訳ありません、誤解を招くような情報を提供しました。
+
+実際には、Flutterプロジェクト内のiOSディレクトリにはデフォルトでPodfileが存在します。Flutterコマンドラインツールが自動的に生成してくれますので、プロジェクトごとに独自のPodfileを作成する必要はありません。
+
+Flutterプロジェクト内のiOSディレクトリに移動し、`pod install`コマンドを実行すると、Flutterフレームワークとプラグインの依存関係が自動的に解決され、Podfile.lockが生成されます。そのため、通常のFlutterプロジェクトでは、独自のPodfileを作成する必要はありません。
+
+ただし、一部のプラグインはPodfileに手動で追加する必要がある場合があります。先ほど提供したPodfileのサンプルコードでは、`shared_preferences`プラグインを手動で追加する方法を示しています。これは、`shared_preferences`プラグインがFlutter SDKの一部ではなく、別途CocoaPodsの依存関係として追加する必要があるためです。
+
+したがって、通常のFlutterプロジェクトでは、プロジェクトごとに独自のPodfileを作成する必要はありません。デフォルトのPodfileを使用して、`pod install`コマンドを実行してください。
+自己解決
+
+Finderからターミナルの情報を開き、「Rosettaを使用して開く」のチェックを外した後、
+https://stackoverflow.com/questions/66644365/cocoapods-on-m1-apple-silicon-fails-with-ffi-wrong-architecture
+を参考に
+sudo gem uninstall cocoapods
+sudo gem uninstall cocoapods-core
+sudo gem uninstall cocoapods-downloader
+etc.
+sudo arch -x86_64 gem install ffi
+sudo arch -x86_64 gem install cocoapods
+を実行することで解決できました。
+
+
+
+
+Podfileを生成
+プロジェクトファイルを選択後、以下のコマンドを打ちます。
+
+pod init
+このコマンドでPodfileが自動的につくられます。
+pod initを打つことで、Podfileが自動で生成され、さまざまなオプションもコメントアウトの形で提供されるので、絶対に使いましょう。
+
+Cocoapodのバージョン管理
+Cocoapodのバージョンを管理するときにPodfileをどう書くかまとめます
+
+バージョンを指定したい場合
+
+pod 'hogehoge', '1.0'  //バージョンを1.0に固定する
+バージョンをあるバージョンより新しいものを使いたい時
+
+pod 'hogehoge', '>1.0' //1.0より新しいバージョン
+
+pod 'hogehoge', '>=1.0' //1.0以上のバージョン
+
+pod 'hogehoge', '<1.0' //未満
+
+pod 'hogehoge', '<=1.0' //以下
+
+pod 'hogehoge', '~>1.0.0' //1.0.0以降で1.0.◯のバージョン
+以上 cocoapodでバージョン管理する時のPodfileの書き方でした
+
+ライブラリをインストール
+初めてプロジェクトにライブラリを導入するときは、
+pod install
+
+2回目以降(ライブラリの追加や削除)は、
+pod update
+というコマンドを打ちます。
+
+コードの記入
+以下のマークのxcworkspaceを開きます。
+
+
+Xcodeを起動させ、上部メニューのPreferencesを開きます。
+Preferencesが表示されたら、Locationsを選択し、Command Line Toolsを確認します。
+
+ここが設定されていないことで、今回のエラーが発生しているようなので、Xcode 11.5を選択することで、podコマンドを使用できるようになります。
+
+MacOSカタリナでXcode 12.1でXcode CLIツールv12.2を使用すると、私の問題が解決しました。
+助けてくれてありがとう、みんな👍
