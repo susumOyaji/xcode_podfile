@@ -1,3 +1,87 @@
+
+FlutterプロジェクトのPodfileは、iOSプラットフォームのビルドに必要な依存関係を管理するために使用されます。
+Podfileは、FlutterプロジェクトがiOSプラットフォーム向けにビルドされる際に自動的に作成されます。
+
+具体的には、以下の場合にPodfileが作成されます：
+
+1. Flutterプロジェクトの初回のビルド時：Flutterプロジェクトを初めてiOSプラットフォームにビルドするとき、
+Flutterフレームワークと関連する依存関係が自動的にインストールされ、Podfileが作成されます。
+
+2. Flutterプロジェクトのプラグインの追加時：Flutterプロジェクトに新しいプラグインを追加すると、
+プラグインが依存するiOS用のCocoaPodsライブラリが自動的に追加され、Podfileが更新されます。
+
+3. Flutterプロジェクトのアップデート時：Flutter SDKやプラグインのバージョンをアップデートすると、
+Flutterフレームワークや関連する依存関係が自動的に更新され、Podfileが必要に応じて更新されます。
+
+Podfileは、Flutterプロジェクトのルートディレクトリに存在し、`ios`ディレクトリ内に配置されます。
+プロジェクトのビルド時には、FlutterがPodfileを読み込んで必要な依存関係を解決し、iOSアプリのビルドに反映されます。
+
+
+Podfileを生成
+プロジェクトファイルを選択後、以下のコマンドを打ちます。
+pod init
+このコマンドでPodfileが自動的につくられます。
+pod initを打つことで、Podfileが自動で生成され、さまざまなオプションもコメントアウトの形で提供されるので、絶対に使いましょう。
+
+ライブラリをインストール
+初めてプロジェクトにライブラリを導入するときは、
+pod install
+
+2回目以降(ライブラリの追加や削除)は、
+pod update
+というコマンドを打ちます。
+
+コードの記入
+以下のマークのxcworkspaceを開きます。
+
+
+Podfileを生成
+プロジェクトファイルを選択後、以下のコマンドを打ちます。
+
+pod init
+pod initはかならず行ってください。
+このコマンドでPodfileが自動的につくられます。
+
+
+
+このようなことを防ぐために
+ターゲットやオプション(platform指定など)を手書きするのは、ミスが起こりやすいですし、なにより面倒くさい。
+そこで、Cocoapodsにはpod initという便利なコマンドが用意されていますので、かならず使いましょう。
+pod initを打つことで、Podfileが自動で生成され、さまざまなオプションもコメントアウトの形で提供されるので、絶対に使いましょう。
+
+
+以下が、pod initを打つことで生成されるPodfileです
+
+Podfile
+# Uncomment this line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'Sample' do
+  # Comment this line if you're not using Swift and don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for Sample
+
+  target 'SampleTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'SampleUITests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end
+
+今回はSampleという名前のプロジェクトでpod initを行いました。
+
+
+
+
+
+
+
 Catalina10.15でCocoaPods1.10.0を入れる方法(Homebrew)
 sell
 homebrew
@@ -101,12 +185,7 @@ sudo arch -x86_64 gem install cocoapods
 
 
 
-Podfileを生成
-プロジェクトファイルを選択後、以下のコマンドを打ちます。
 
-pod init
-このコマンドでPodfileが自動的につくられます。
-pod initを打つことで、Podfileが自動で生成され、さまざまなオプションもコメントアウトの形で提供されるので、絶対に使いましょう。
 
 Cocoapodのバージョン管理
 Cocoapodのバージョンを管理するときにPodfileをどう書くかまとめます
@@ -146,3 +225,5 @@ Preferencesが表示されたら、Locationsを選択し、Command Line Toolsを
 
 MacOSカタリナでXcode 12.1でXcode CLIツールv12.2を使用すると、私の問題が解決しました。
 助けてくれてありがとう、みんな👍
+
+
